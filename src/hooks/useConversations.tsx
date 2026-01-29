@@ -116,26 +116,30 @@ export function useStartConversation() {
         }
       }
 
-      // Create new conversation
-      const { data: newConversation, error: convError } = await supabase
+      // Create new conversation - get ID without .select() which triggers RLS
+      const conversationId = crypto.randomUUID();
+      
+      const { error: convError } = await supabase
         .from('conversations')
-        .insert({})
-        .select()
-        .single();
+        .insert({ id: conversationId });
 
       if (convError) throw convError;
 
-      // Add both participants
-      const { error: participantError } = await supabase
+      // Add the current user first (so they can see the conversation)
+      const { error: selfParticipantError } = await supabase
         .from('conversation_participants')
-        .insert([
-          { conversation_id: newConversation.id, user_id: user.id },
-          { conversation_id: newConversation.id, user_id: otherUserId },
-        ]);
+        .insert({ conversation_id: conversationId, user_id: user.id });
 
-      if (participantError) throw participantError;
+      if (selfParticipantError) throw selfParticipantError;
 
-      return newConversation.id;
+      // Then add the other user
+      const { error: otherParticipantError } = await supabase
+        .from('conversation_participants')
+        .insert({ conversation_id: conversationId, user_id: otherUserId });
+
+      if (otherParticipantError) throw otherParticipantError;
+
+      return conversationId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
