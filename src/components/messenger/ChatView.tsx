@@ -1,4 +1,4 @@
-import { ArrowLeft, Phone, Video, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Phone, Video, MoreVertical, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from './UserAvatar';
 import { MessageList } from './MessageList';
@@ -7,6 +7,12 @@ import { useMessages, useMarkAsRead } from '@/hooks/useMessages';
 import { Profile } from '@/types/messenger';
 import { useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ChatViewProps {
   conversationId: string | null;
@@ -29,11 +35,11 @@ export function ChatView({ conversationId, participantProfile, onBack }: ChatVie
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-background">
+    <div className="flex-1 flex flex-col h-full bg-background w-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border glass-subtle">
+      <div className="flex items-center gap-3 p-3 md:p-4 border-b border-border bg-card/50 backdrop-blur-sm safe-area-top">
         {onBack && (
-          <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden">
+          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
@@ -43,19 +49,44 @@ export function ChatView({ conversationId, participantProfile, onBack }: ChatVie
             {participantProfile?.display_name ?? participantProfile?.username}
           </p>
           <p className="text-xs text-muted-foreground">
-            {participantProfile?.is_online ? 'Online' : 'Offline'}
+            {participantProfile?.is_online ? (
+              <span className="text-emerald-500 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block"></span>
+                Online
+              </span>
+            ) : (
+              'Offline'
+            )}
           </p>
         </div>
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
+        <div className="flex gap-1 shrink-0">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hidden sm:flex">
             <Phone className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hidden sm:flex">
             <Video className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-popover">
+              <DropdownMenuItem className="sm:hidden">
+                <Phone className="h-4 w-4 mr-2" />
+                Voice Call
+              </DropdownMenuItem>
+              <DropdownMenuItem className="sm:hidden">
+                <Video className="h-4 w-4 mr-2" />
+                Video Call
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Info className="h-4 w-4 mr-2" />
+                View Profile
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -72,7 +103,9 @@ export function ChatView({ conversationId, participantProfile, onBack }: ChatVie
       )}
 
       {/* Input */}
-      <MessageInput conversationId={conversationId} />
+      <div className="safe-area-bottom">
+        <MessageInput conversationId={conversationId} />
+      </div>
     </div>
   );
 }
@@ -85,7 +118,7 @@ function EmptyChatState() {
       </div>
       <h2 className="text-2xl font-semibold text-foreground mb-2">Your messages</h2>
       <p className="text-muted-foreground text-center max-w-sm">
-        Select a conversation from the sidebar or start a new one to begin chatting.
+        Select a conversation or start a new one to begin chatting.
       </p>
     </div>
   );

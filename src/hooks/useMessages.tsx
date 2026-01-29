@@ -95,12 +95,9 @@ export function useSendMessage() {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data, variables) => {
-      // Add the new message to the cache immediately
-      queryClient.setQueryData(
-        ['messages', variables.conversationId],
-        (old: Message[] | undefined) => [...(old ?? []), data as Message]
-      );
+    onSuccess: () => {
+      // Don't add message to cache here - realtime subscription handles it
+      // This prevents duplicate messages
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
   });

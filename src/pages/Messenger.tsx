@@ -10,7 +10,6 @@ import { Profile } from '@/types/messenger';
 export default function Messenger() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [showNewConversation, setShowNewConversation] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   
   const { user, loading } = useAuth();
@@ -23,18 +22,12 @@ export default function Messenger() {
     }
   }, [user, loading, navigate]);
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobileView(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  // Handle responsive behavior
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const handleSelectConversation = (id: string) => {
     setSelectedConversationId(id);
-    if (isMobileView) {
-      setShowChat(true);
-    }
+    setShowChat(true);
   };
 
   const handleBack = () => {
@@ -43,9 +36,7 @@ export default function Messenger() {
 
   const handleConversationCreated = (conversationId: string) => {
     setSelectedConversationId(conversationId);
-    if (isMobileView) {
-      setShowChat(true);
-    }
+    setShowChat(true);
   };
 
   // Get participant profile for the selected conversation
@@ -69,11 +60,11 @@ export default function Messenger() {
 
   return (
     <div className="h-screen flex overflow-hidden bg-background">
-      {/* Sidebar */}
+      {/* Sidebar - hidden on mobile when chat is open */}
       <div
         className={`${
-          isMobileView ? (showChat ? 'hidden' : 'w-full') : 'flex'
-        } md:flex`}
+          showChat ? 'hidden md:flex' : 'flex'
+        } w-full md:w-auto`}
       >
         <ConversationSidebar
           selectedConversationId={selectedConversationId}
@@ -82,16 +73,16 @@ export default function Messenger() {
         />
       </div>
 
-      {/* Chat view */}
+      {/* Chat view - full screen on mobile when active */}
       <div
         className={`flex-1 ${
-          isMobileView ? (showChat ? 'flex' : 'hidden') : 'flex'
-        } md:flex`}
+          showChat ? 'flex' : 'hidden md:flex'
+        }`}
       >
         <ChatView
           conversationId={selectedConversationId}
           participantProfile={participantProfile}
-          onBack={isMobileView ? handleBack : undefined}
+          onBack={handleBack}
         />
       </div>
 

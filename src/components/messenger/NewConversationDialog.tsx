@@ -54,7 +54,7 @@ export function NewConversationDialog({
             placeholder="Search users..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-secondary/50 border-0"
+            className="pl-9 bg-muted border-border text-foreground placeholder:text-muted-foreground"
             autoFocus
           />
         </div>
