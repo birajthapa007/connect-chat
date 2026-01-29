@@ -10,7 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
@@ -21,17 +22,22 @@ export default function Signup() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (username.length < 3) {
+    const displayName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    
+    if (displayName.length < 2) {
       toast({
-        title: 'Invalid username',
-        description: 'Username must be at least 3 characters.',
+        title: 'Invalid name',
+        description: 'Please enter your first and last name.',
         variant: 'destructive',
       });
       setIsLoading(false);
       return;
     }
 
-    const { error } = await signUp(email, password, username);
+    // Generate username from first name + random suffix
+    const username = `${firstName.toLowerCase().replace(/\s+/g, '')}${Math.floor(Math.random() * 1000)}`;
+
+    const { error } = await signUp(email, password, username, displayName);
 
     if (error) {
       toast({
@@ -52,17 +58,31 @@ export default function Signup() {
   return (
     <AuthLayout title="Create account" subtitle="Join Messenger today">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
-          <Input
-            id="username"
-            type="text"
-            placeholder="johndoe"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="input-glow"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              type="text"
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              className="input-glow"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              id="lastName"
+              type="text"
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+              className="input-glow"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -94,7 +114,7 @@ export default function Signup() {
 
         <Button
           type="submit"
-          className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+          className="w-full bg-gradient-to-r from-primary to-accent text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-primary/20"
           disabled={isLoading}
         >
           {isLoading ? (

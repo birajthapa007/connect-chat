@@ -100,7 +100,7 @@ export function ChatView({ conversationId, participantProfile, onBack }: ChatVie
                 <MoreVertical className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-popover border-border">
+            <DropdownMenuContent align="end">
               <DropdownMenuItem className="sm:hidden">
                 <Phone className="h-4 w-4 mr-2" />
                 Voice Call
