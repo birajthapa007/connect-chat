@@ -52,8 +52,8 @@ export function ConversationSidebar({
                   <UserAvatar profile={profile} showStatus />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-60 bg-popover/95 backdrop-blur-lg border-primary/10">
-                <div className="px-3 py-3 border-b border-border/50">
+              <DropdownMenuContent align="start" className="w-60">
+                <div className="px-3 py-3 border-b border-border">
                   <p className="font-semibold text-foreground truncate text-base">
                     {profile?.display_name ?? profile?.username}
                   </p>

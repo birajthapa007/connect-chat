@@ -69,7 +69,7 @@ export default function Login() {
 
         <Button
           type="submit"
-          className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+          className="w-full bg-gradient-to-r from-primary to-accent text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-primary/20"
           disabled={isLoading}
         >
           {isLoading ? (
