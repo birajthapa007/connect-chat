@@ -41,23 +41,23 @@ export function ConversationSidebar({
   );
 
   return (
-    <div className="w-full md:w-80 lg:w-96 h-full flex flex-col border-r border-border bg-sidebar">
+    <div className="w-full md:w-80 lg:w-96 h-full flex flex-col border-r border-border/50 bg-sidebar">
       {/* Header */}
-      <div className="p-4 border-b border-border safe-area-top">
+      <div className="p-4 border-b border-border/50 safe-area-top bg-gradient-to-b from-primary/5 to-transparent">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full">
+                <button className="focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full transition-transform hover:scale-105">
                   <UserAvatar profile={profile} showStatus />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-popover">
-                <div className="px-3 py-2">
-                  <p className="font-medium text-foreground truncate">
+              <DropdownMenuContent align="start" className="w-60 bg-popover/95 backdrop-blur-lg border-primary/10">
+                <div className="px-3 py-3 border-b border-border/50">
+                  <p className="font-semibold text-foreground truncate text-base">
                     {profile?.display_name ?? profile?.username}
                   </p>
-                  <p className="text-sm text-muted-foreground truncate">@{profile?.username}</p>
+                  <p className="text-sm text-muted-foreground truncate mt-0.5">@{profile?.username}</p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
@@ -89,7 +89,7 @@ export function ConversationSidebar({
             variant="ghost"
             size="icon"
             onClick={onNewConversation}
-            className="shrink-0 text-primary hover:bg-primary/10"
+            className="shrink-0 text-primary hover:bg-primary/10 hover:scale-105 transition-all"
           >
             <MessageSquarePlus className="h-5 w-5" />
           </Button>

@@ -28,9 +28,9 @@ export function UserAvatar({ profile, size = 'md', showStatus = false, isOnline 
 
   return (
     <div className="relative">
-      <Avatar className={cn(sizeClasses[size], "ring-2 ring-background shadow-sm")}>
-        <AvatarImage src={profile?.avatar_url ?? undefined} alt={profile?.display_name ?? 'User'} />
-        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-medium">
+      <Avatar className={cn(sizeClasses[size], "ring-2 ring-primary/20 shadow-md shadow-primary/10")}>
+        <AvatarImage src={profile?.avatar_url ?? undefined} alt={profile?.display_name ?? 'User'} className="object-cover" />
+        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold">
           {initials}
         </AvatarFallback>
       </Avatar>
