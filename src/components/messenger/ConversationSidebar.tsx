@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, MessageSquarePlus, LogOut, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, MessageSquarePlus, LogOut, Settings, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -13,6 +14,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -28,6 +30,7 @@ export function ConversationSidebar({
   onNewConversation,
 }: ConversationSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   const { signOut } = useAuth();
   const { data: profile } = useCurrentProfile();
   const { data: conversations, isLoading } = useConversations();
@@ -40,30 +43,56 @@ export function ConversationSidebar({
   return (
     <div className="w-full md:w-80 lg:w-96 h-full flex flex-col border-r border-border bg-sidebar">
       {/* Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border safe-area-top">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <UserAvatar profile={profile} showStatus />
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full">
+                  <UserAvatar profile={profile} showStatus />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 bg-popover">
+                <div className="px-3 py-2">
+                  <p className="font-medium text-foreground truncate">
+                    {profile?.display_name ?? profile?.username}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">@{profile?.username}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-foreground truncate">
-                {profile?.display_name ?? profile?.username}
+                {profile?.display_name ?? profile?.username ?? 'Messages'}
               </p>
-              <p className="text-xs text-muted-foreground">Online</p>
+              <p className="text-xs text-emerald-500 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                Online
+              </p>
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-popover">
-              <DropdownMenuItem onClick={signOut} className="text-destructive">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onNewConversation}
+            className="shrink-0 text-primary hover:bg-primary/10"
+          >
+            <MessageSquarePlus className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Search */}
@@ -73,21 +102,9 @@ export function ConversationSidebar({
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-secondary/50 border-0 focus-visible:ring-1"
+            className="pl-9 bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary"
           />
         </div>
-      </div>
-
-      {/* New conversation button */}
-      <div className="p-2">
-        <Button
-          onClick={onNewConversation}
-          variant="ghost"
-          className="w-full justify-start gap-3 text-primary hover:bg-primary/10"
-        >
-          <MessageSquarePlus className="h-5 w-5" />
-          New conversation
-        </Button>
       </div>
 
       {/* Conversations list */}
@@ -106,10 +123,18 @@ export function ConversationSidebar({
               ))}
             </div>
           ) : filteredConversations?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <MessageSquarePlus className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">No conversations yet</p>
-              <p className="text-xs mt-1">Start chatting with someone!</p>
+            <div className="text-center py-12 px-4">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <MessageSquarePlus className="h-8 w-8 text-primary" />
+              </div>
+              <p className="font-medium text-foreground mb-1">No conversations yet</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Start chatting with someone!
+              </p>
+              <Button onClick={onNewConversation} size="sm" className="bg-primary hover:bg-primary/90">
+                <MessageSquarePlus className="h-4 w-4 mr-2" />
+                New Chat
+              </Button>
             </div>
           ) : (
             filteredConversations?.map((conv) => (
@@ -146,12 +171,12 @@ function ConversationItem({ conversation, isActive, onClick }: ConversationItemP
       case 'file':
         return `📎 ${lastMessage.file_name ?? 'File'}`;
       default:
-        return lastMessage.content ?? '';
+        return lastMessage.content || 'Message';
     }
   };
 
   const timeAgo = lastMessage
-    ? formatDistanceToNow(new Date(lastMessage.created_at), { addSuffix: true })
+    ? formatDistanceToNow(new Date(lastMessage.created_at), { addSuffix: false })
     : '';
 
   return (
@@ -161,7 +186,7 @@ function ConversationItem({ conversation, isActive, onClick }: ConversationItemP
     >
       <UserAvatar profile={participant} size="lg" showStatus />
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <p className="font-medium text-foreground truncate">
             {participant.display_name ?? participant.username}
           </p>
@@ -169,11 +194,11 @@ function ConversationItem({ conversation, isActive, onClick }: ConversationItemP
             <span className="text-xs text-muted-foreground shrink-0">{timeAgo}</span>
           )}
         </div>
-        <div className="flex items-center justify-between mt-0.5">
+        <div className="flex items-center justify-between mt-0.5 gap-2">
           <p className="text-sm text-muted-foreground truncate">{getMessagePreview()}</p>
           {unreadCount > 0 && (
-            <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
-              {unreadCount}
+            <span className="px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full shrink-0">
+              {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </div>

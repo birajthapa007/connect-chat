@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
-import { Send, Image, Mic, Paperclip, X, Loader2 } from 'lucide-react';
+import { Send, Image, Paperclip, Loader2, Smile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useSendMessage } from '@/hooks/useMessages';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,11 +10,10 @@ interface MessageInputProps {
 
 export function MessageInput({ conversationId }: MessageInputProps) {
   const [message, setMessage] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const [attachment, setAttachment] = useState<File | null>(null);
-  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const sendMessage = useSendMessage();
   const { toast } = useToast();
 
@@ -30,7 +28,10 @@ export function MessageInput({ conversationId }: MessageInputProps) {
       });
       setMessage('');
       setAttachment(null);
-      setAttachmentPreview(null);
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     } catch (error) {
       toast({
         title: 'Failed to send message',
@@ -47,69 +48,51 @@ export function MessageInput({ conversationId }: MessageInputProps) {
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    // Auto-resize textarea
+    const textarea = e.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setAttachment(file);
-      if (type === 'image') {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setAttachmentPreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setAttachmentPreview(null);
-      }
     }
   };
 
-  const clearAttachment = () => {
-    setAttachment(null);
-    setAttachmentPreview(null);
-  };
-
   return (
-    <div className="border-t border-border p-4 bg-card/50">
+    <div className="border-t border-border p-2 md:p-3 bg-card/50">
       {/* Attachment preview */}
       {attachment && (
-        <div className="mb-3 p-3 bg-secondary/50 rounded-lg flex items-center gap-3">
-          {attachmentPreview ? (
-            <img
-              src={attachmentPreview}
-              alt="Preview"
-              className="h-16 w-16 object-cover rounded-lg"
-            />
-          ) : (
-            <div className="h-16 w-16 bg-muted rounded-lg flex items-center justify-center">
-              <Paperclip className="h-6 w-6 text-muted-foreground" />
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate text-sm">{attachment.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {(attachment.size / 1024).toFixed(1)} KB
-            </p>
-          </div>
-          <Button variant="ghost" size="icon" onClick={clearAttachment}>
-            <X className="h-4 w-4" />
-          </Button>
+        <div className="mb-2 px-2 py-1.5 bg-muted rounded-lg flex items-center gap-2 text-sm">
+          <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="truncate text-foreground">{attachment.name}</span>
+          <button 
+            onClick={() => setAttachment(null)}
+            className="ml-auto text-muted-foreground hover:text-foreground"
+          >
+            ×
+          </button>
         </div>
       )}
 
       <div className="flex items-end gap-2">
-        {/* Action buttons */}
-        <div className="flex gap-1">
+        {/* Action buttons - compact on mobile */}
+        <div className="flex gap-0.5 shrink-0">
           <input
             ref={imageInputRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => handleFileSelect(e, 'image')}
+            onChange={handleFileSelect}
           />
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground"
             onClick={() => imageInputRef.current?.click()}
           >
             <Image className="h-5 w-5" />
@@ -119,12 +102,12 @@ export function MessageInput({ conversationId }: MessageInputProps) {
             ref={fileInputRef}
             type="file"
             className="hidden"
-            onChange={(e) => handleFileSelect(e, 'file')}
+            onChange={handleFileSelect}
           />
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground hidden sm:flex"
             onClick={() => fileInputRef.current?.click()}
           >
             <Paperclip className="h-5 w-5" />
@@ -133,24 +116,23 @@ export function MessageInput({ conversationId }: MessageInputProps) {
           <Button
             variant="ghost"
             size="icon"
-            className={`text-muted-foreground hover:text-foreground ${
-              isRecording ? 'text-destructive animate-pulse' : ''
-            }`}
-            onClick={() => setIsRecording(!isRecording)}
+            className="h-9 w-9 text-muted-foreground hover:text-foreground hidden sm:flex"
           >
-            <Mic className="h-5 w-5" />
+            <Smile className="h-5 w-5" />
           </Button>
         </div>
 
         {/* Message input */}
         <div className="flex-1 relative">
-          <Textarea
+          <textarea
+            ref={textareaRef}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleInput}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="min-h-[44px] max-h-32 resize-none pr-12 bg-secondary/50 border-0 focus-visible:ring-1 rounded-2xl"
+            className="w-full min-h-[40px] max-h-[120px] px-4 py-2.5 bg-muted border border-border text-foreground placeholder:text-muted-foreground rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-sm md:text-base"
             rows={1}
+            style={{ height: 'auto' }}
           />
         </div>
 
@@ -158,7 +140,8 @@ export function MessageInput({ conversationId }: MessageInputProps) {
         <Button
           onClick={handleSend}
           disabled={(!message.trim() && !attachment) || sendMessage.isPending}
-          className="bg-gradient-to-r from-primary to-accent hover:opacity-90 rounded-full h-11 w-11 p-0"
+          size="icon"
+          className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 shrink-0"
         >
           {sendMessage.isPending ? (
             <Loader2 className="h-5 w-5 animate-spin" />
