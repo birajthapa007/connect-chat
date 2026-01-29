@@ -66,39 +66,48 @@ export type Database = {
           content: string | null
           conversation_id: string
           created_at: string | null
+          delivered_at: string | null
           file_name: string | null
           file_size: number | null
           file_url: string | null
           id: string
           is_read: boolean | null
           message_type: Database["public"]["Enums"]["message_type"] | null
+          read_at: string | null
           sender_id: string
+          status: string | null
           updated_at: string | null
         }
         Insert: {
           content?: string | null
           conversation_id: string
           created_at?: string | null
+          delivered_at?: string | null
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
           id?: string
           is_read?: boolean | null
           message_type?: Database["public"]["Enums"]["message_type"] | null
+          read_at?: string | null
           sender_id: string
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
           content?: string | null
           conversation_id?: string
           created_at?: string | null
+          delivered_at?: string | null
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
           id?: string
           is_read?: boolean | null
           message_type?: Database["public"]["Enums"]["message_type"] | null
+          read_at?: string | null
           sender_id?: string
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -147,6 +156,59 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           username?: string
+        }
+        Relationships: []
+      }
+      typing_status: {
+        Row: {
+          conversation_id: string
+          id: string
+          is_typing: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typing_status_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_presence: {
+        Row: {
+          is_online: boolean | null
+          last_seen: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          is_online?: boolean | null
+          last_seen?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          is_online?: boolean | null
+          last_seen?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

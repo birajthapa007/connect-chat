@@ -36,6 +36,9 @@ export interface Message {
   file_name: string | null;
   file_size: number | null;
   is_read: boolean;
+  delivered_at: string | null;
+  read_at: string | null;
+  status: 'sending' | 'sent' | 'delivered' | 'read' | null;
   created_at: string;
   updated_at: string;
 }
