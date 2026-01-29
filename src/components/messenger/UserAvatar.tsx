@@ -1,10 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Profile } from '@/types/messenger';
+import { cn } from '@/lib/utils';
 
 interface UserAvatarProps {
   profile: Profile | null | undefined;
   size?: 'sm' | 'md' | 'lg';
   showStatus?: boolean;
+  isOnline?: boolean;
 }
 
 const sizeClasses = {
@@ -13,7 +15,7 @@ const sizeClasses = {
   lg: 'h-12 w-12',
 };
 
-export function UserAvatar({ profile, size = 'md', showStatus = false }: UserAvatarProps) {
+export function UserAvatar({ profile, size = 'md', showStatus = false, isOnline }: UserAvatarProps) {
   const initials = profile?.display_name
     ?.split(' ')
     .map((n) => n[0])
@@ -21,9 +23,12 @@ export function UserAvatar({ profile, size = 'md', showStatus = false }: UserAva
     .toUpperCase()
     .slice(0, 2) ?? profile?.username?.slice(0, 2).toUpperCase() ?? '??';
 
+  // Use passed isOnline prop if provided, otherwise fall back to profile's is_online
+  const online = isOnline !== undefined ? isOnline : profile?.is_online;
+
   return (
     <div className="relative">
-      <Avatar className={sizeClasses[size]}>
+      <Avatar className={cn(sizeClasses[size], "ring-2 ring-background shadow-sm")}>
         <AvatarImage src={profile?.avatar_url ?? undefined} alt={profile?.display_name ?? 'User'} />
         <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-medium">
           {initials}
@@ -31,9 +36,10 @@ export function UserAvatar({ profile, size = 'md', showStatus = false }: UserAva
       </Avatar>
       {showStatus && (
         <span
-          className={`absolute bottom-0 right-0 ${
-            profile?.is_online ? 'online-indicator' : 'offline-indicator'
-          }`}
+          className={cn(
+            "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background",
+            online ? 'bg-emerald-500' : 'bg-muted-foreground/40'
+          )}
         />
       )}
     </div>
