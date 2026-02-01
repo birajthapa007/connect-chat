@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { ConversationWithDetails, Profile, Message } from '@/types/messenger';
 
 export function useConversations() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -57,7 +59,7 @@ export function useConversations() {
 
         if (messagesError) throw messagesError;
 
-        // Get unread count
+        // Get unread count - only messages FROM others that are NOT read by me
         const { count, error: countError } = await supabase
           .from('messages')
           .select('*', { count: 'exact', head: true })
@@ -83,8 +85,34 @@ export function useConversations() {
       });
     },
     enabled: !!user,
-    refetchInterval: 5000, // Poll every 5 seconds for updates
   });
+
+  // Real-time subscription for message updates (new messages, read status changes)
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('conversations-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+        },
+        () => {
+          // Refetch conversations when any message changes
+          queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
+
+  return query;
 }
 
 export function useStartConversation() {
