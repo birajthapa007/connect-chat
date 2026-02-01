@@ -24,7 +24,7 @@ export function useMessages(conversationId: string | null) {
     enabled: !!conversationId,
   });
 
-  // Real-time subscription
+  // Real-time subscription for new messages AND updates (for read receipts)
   useEffect(() => {
     if (!conversationId) return;
 
@@ -44,6 +44,23 @@ export function useMessages(conversationId: string | null) {
             (old: Message[] | undefined) => [...(old ?? []), payload.new as Message]
           );
           queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          // Update message in cache when it's marked as read
+          queryClient.setQueryData(
+            ['messages', conversationId],
+            (old: Message[] | undefined) => 
+              old?.map(msg => msg.id === payload.new.id ? payload.new as Message : msg) ?? []
+          );
         }
       )
       .subscribe();
@@ -111,16 +128,23 @@ export function useMarkAsRead() {
     mutationFn: async (conversationId: string) => {
       if (!user) throw new Error('Not authenticated');
 
+      const now = new Date().toISOString();
+
       const { error } = await supabase
         .from('messages')
-        .update({ is_read: true })
+        .update({ 
+          is_read: true,
+          read_at: now,
+          status: 'read'
+        })
         .eq('conversation_id', conversationId)
         .neq('sender_id', user.id)
         .eq('is_read', false);
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, conversationId) => {
+      queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
   });
