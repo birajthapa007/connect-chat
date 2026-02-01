@@ -271,7 +271,7 @@ function EditMessageForm({ message, onCancel }: EditMessageFormProps) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="min-h-[60px] bg-secondary/50 border-primary/30 text-sm resize-none"
+        className="min-h-[60px] bg-card border-border text-foreground text-sm resize-none focus:ring-primary"
         placeholder="Edit your message..."
       />
       <div className="flex items-center justify-end gap-2 mt-2">
