@@ -20,7 +20,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 shadow-glow">
             <MessageCircle className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold gradient-text">Messenger</h1>
+          <h1 className="text-3xl font-bold gradient-text">Pulse</h1>
         </div>
 
         {/* Card */}
