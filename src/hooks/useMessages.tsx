@@ -149,3 +149,83 @@ export function useMarkAsRead() {
     },
   });
 }
+
+export function useEditMessage() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      messageId, 
+      content,
+      conversationId 
+    }: { 
+      messageId: string; 
+      content: string;
+      conversationId: string;
+    }) => {
+      if (!user) throw new Error('Not authenticated');
+
+      // First, fetch the message to check if it's within 10 minutes
+      const { data: message, error: fetchError } = await supabase
+        .from('messages')
+        .select('created_at, sender_id')
+        .eq('id', messageId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      
+      // Verify ownership
+      if (message.sender_id !== user.id) {
+        throw new Error('You can only edit your own messages');
+      }
+
+      // Check if within 10 minutes
+      const createdAt = new Date(message.created_at);
+      const now = new Date();
+      const diffMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+      
+      if (diffMinutes > 10) {
+        throw new Error('Messages can only be edited within 10 minutes of sending');
+      }
+
+      const { data, error } = await supabase
+        .from('messages')
+        .update({ 
+          content,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', messageId)
+        .eq('sender_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { data, conversationId };
+    },
+    onSuccess: ({ conversationId }) => {
+      queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+}
+
+// Helper to check if a message is editable (within 10 minutes and is own message)
+export function canEditMessage(message: Message, userId: string | undefined): boolean {
+  if (!userId || message.sender_id !== userId) return false;
+  if (message.message_type !== 'text') return false;
+  
+  const createdAt = new Date(message.created_at);
+  const now = new Date();
+  const diffMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+  
+  return diffMinutes <= 10;
+}
+
+// Check if message was edited
+export function isMessageEdited(message: Message): boolean {
+  const created = new Date(message.created_at).getTime();
+  const updated = new Date(message.updated_at).getTime();
+  // Consider edited if updated more than 1 second after creation
+  return (updated - created) > 1000;
+}
