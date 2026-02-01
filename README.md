@@ -1,70 +1,142 @@
-# Messenger
+<p align="center">
+  <img src="public/banner.png" alt="Pulse Banner" width="100%" />
+</p>
 
-A modern, real-time messaging application built with React, TypeScript, and Supabase.
+<p align="center">
+  <img src="public/logo.png" alt="Pulse Logo" width="120" height="120" />
+</p>
 
-## Features
+<h1 align="center">Pulse</h1>
 
-- 💬 Real-time messaging with instant delivery
-- 🖼️ Image, audio, and file sharing
-- 🎤 Voice message recording
-- ⌨️ Typing indicators
-- 🟢 Online/offline presence tracking
-- ✅ Message read receipts
-- 🔐 Secure authentication
-- 📱 Mobile-responsive design
+<p align="center">
+  <strong>Real-time conversations that keep you connected</strong>
+</p>
 
-## Tech Stack
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#project-structure">Structure</a> •
+  <a href="#license">License</a>
+</p>
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **State Management**: TanStack Query
-- **Backend**: Supabase (PostgreSQL, Realtime, Storage, Auth)
-- **UI Components**: shadcn/ui, Radix UI
-- **Build Tool**: Vite
+---
 
-## Getting Started
+## ✨ Features
+
+- **🔐 Secure Authentication** - Email/password authentication with email verification
+- **💬 Real-time Messaging** - Instant message delivery with live updates
+- **⌨️ Typing Indicators** - See when others are typing in real-time
+- **🟢 Presence Status** - Know who's online with live presence tracking
+- **📎 File Sharing** - Share images, documents, and other files
+- **🎤 Voice Messages** - Record and send audio messages
+- **📱 Mobile Responsive** - Beautiful experience on any device
+- **🌙 Dark Mode** - Premium dark theme with teal accents
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 18, TypeScript, Vite |
+| **Styling** | Tailwind CSS, shadcn/ui |
+| **State** | TanStack Query (React Query) |
+| **Backend** | Supabase (PostgreSQL, Auth, Realtime, Storage) |
+| **Routing** | React Router v6 |
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or bun
+- Node.js 18+ or Bun
+- A Supabase project (or use Lovable Cloud)
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone <your-repo-url>
-cd messenger
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/pulse.git
+   cd pulse
+   ```
 
-# Install dependencies
-npm install
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
 
-# Start development server
-npm run dev
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Fill in your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key
+   ```
+
+4. **Start development server**
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
+
+5. **Open in browser**
+   ```
+   http://localhost:5173
+   ```
+
+## 📁 Project Structure
+
+```
+pulse/
+├── public/              # Static assets (logo, banner, favicon)
+├── src/
+│   ├── components/      # Reusable UI components
+│   │   ├── auth/        # Authentication components
+│   │   ├── messenger/   # Chat/messaging components
+│   │   └── ui/          # shadcn/ui base components
+│   ├── hooks/           # Custom React hooks
+│   ├── integrations/    # Third-party integrations
+│   ├── lib/             # Utility functions
+│   ├── pages/           # Route page components
+│   └── types/           # TypeScript definitions
+├── supabase/            # Supabase configuration
+└── ARCHITECTURE.md      # Detailed architecture documentation
 ```
 
-### Environment Variables
+> 📖 See [ARCHITECTURE.md](./ARCHITECTURE.md) for comprehensive documentation of every file and their connections.
 
-Create a `.env` file with:
+## 🗄 Database Schema
 
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key
-```
+| Table | Description |
+|-------|-------------|
+| `profiles` | User profile information |
+| `conversations` | Chat conversations |
+| `conversation_participants` | Conversation membership |
+| `messages` | Chat messages |
+| `typing_status` | Real-time typing indicators |
+| `user_presence` | Online/offline status |
 
-## Project Structure
+## 🎨 Design System
 
-```
-src/
-├── components/
-│   ├── messenger/     # Chat UI components
-│   ├── auth/          # Authentication components
-│   └── ui/            # Reusable UI components
-├── hooks/             # Custom React hooks
-├── pages/             # Route pages
-├── types/             # TypeScript types
-└── integrations/      # External service integrations
-```
+Pulse uses a premium teal color palette:
 
-## License
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Teal 500 | `#0D9488` | Primary brand |
+| Teal 400 | `#2DD4BF` | Highlights |
+| Teal 600 | `#0F766E` | Dark accents |
+| Slate 900 | `#0F172A` | Background |
 
-MIT
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) for details.
+
+---
+
+<p align="center">
+  Built with ❤️ by the Pulse Team
+</p>
